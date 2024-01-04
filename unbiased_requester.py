@@ -234,3 +234,35 @@ if st.checkbox("Apply localization-bias-tool"):
                            'localization_bias_tool_data',
                            'text/csv',
                            key="download_localization_bias_tool_data")
+
+# Availability bias tool
+
+if st.checkbox("Apply availability-bias-tool"):
+    data_load_state = st.text(
+        "Loading data for your query... This may take a few minutes")
+    data_available = data_original.copy()
+    data_available_summary = data_available.groupby(
+        'openaccess').agg({'dc:identifier': 'count'}).reset_index()
+    nr_open_access_records = data_available_summary[
+        data_available_summary['openaccess']].iloc[0, 1]
+    availability_benchmark = nr_open_access_records/len(data_available)
+    data_load_state.text(
+        "Data loaded!\n" +
+        f"Retrieved {len(data_available)} results with the " +
+        " availability-bias-tool.\n" +
+        "Out of these results " +
+        f"{nr_open_access_records} are open-access records.\n" +
+        f"This corresponds to {round(100*availability_benchmark,1)}% of " +
+        "the total records."
+        )
+
+    if st.checkbox("\t Show availability-bias-tool data records"):
+        data_available_diff = data_available[
+            data_available['openaccess']].reset_index(drop=True)
+        st.write("Availability-bias-tool data")
+        st.write(data_available_diff)
+        st.download_button('Download CSV',
+                           convert_df(data_available_diff),
+                           'availability_bias_tool_data',
+                           'text/csv',
+                           key="download_availability_bias_tool_data")
